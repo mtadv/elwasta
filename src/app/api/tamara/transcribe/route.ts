@@ -4,7 +4,8 @@ import {
 } from "@/lib/assemblyai";
 import { openai } from "@/lib/openai";
 import { TAMARA_SYSTEM_PROMPT } from "@/lib/prompts/tamara";
-import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/supabase/admin";
+
 
 type Message = {
   role: "user" | "assistant";
@@ -30,7 +31,7 @@ function isWarmUp(messages: Message[]) {
 async function ensureCandidate(candidateId?: string | null) {
   if (candidateId) return candidateId;
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseAdmin
     .from("candidates")
     .insert({
       source: "tamara",
@@ -52,7 +53,7 @@ async function loadCandidateContext(
 ) {
   if (warmUp) return null;
 
-  const { data } = await supabase
+  const { data } = await supabaseAdmin
     .from("candidates")
     .select("cv_text, profile")
     .eq("id", candidateId)
@@ -292,7 +293,7 @@ STRUCTURED:
             parsed = { raw: profileJson };
           }
 
-          await supabase
+          await supabaseAdmin
             .from("candidates")
             .upsert(
               { id: candidateId, profile: parsed },
