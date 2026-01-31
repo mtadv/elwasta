@@ -34,21 +34,28 @@ export default function LoginPage() {
   const signUp = async () => {
     setLoading(true);
     setError(null);
-
-    const { error } = await supabaseClient.auth.signUp({
+  
+    const { data, error } = await supabaseClient.auth.signUp({
       email,
       password,
     });
-
+  
     setLoading(false);
-
+  
     if (error) {
       setError(error.message);
-    } else {
-      router.push("/recruiter/dashboard");
-
+      return;
     }
+  
+    // Email confirmation is enabled
+    if (!data.session) {
+      alert("Check your email to confirm your account.");
+      return;
+    }
+  
+    router.push("/recruiter/dashboard");
   };
+  
 
   return (
     <main className="min-h-screen flex items-center justify-center">
